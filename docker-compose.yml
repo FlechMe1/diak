@@ -1,7 +1,7 @@
 version: '2'
 services:
   app:
-    container_name: funadf_app
+    container_name: diak_app
     build:
       context: .
       dockerfile: ./docker/rails/Dockerfile
@@ -21,7 +21,7 @@ services:
       service: password
 
   vite:
-    container_name: funadf_vite
+    container_name: diak_vite
     build:
       context: .
       dockerfile: ./docker/rails/Dockerfile
@@ -35,17 +35,17 @@ services:
     volumes:
       - .:/app
   db:
-    container_name: funadf_db
+    container_name: diak_db
     build:
       context: .
       dockerfile: ./docker/mysql/Dockerfile
     ports:
       - '3307:3306'
     volumes:
-      - funadf_db:/var/lib/mysql
+      - diak_db:/var/lib/mysql
     extends:
       file: ./docker/mysql/password.yml
       service: password
 
 volumes:
-  funadf_db:
+  diak_db:
