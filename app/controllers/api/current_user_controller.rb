@@ -1,12 +1,12 @@
 class Api::CurrentUserController < ApiController
   def show
-    @user          = current_user
-    @original_user = nil
+    original_user = nil
     unless session[:original_user].nil?
-      @original_user= User.find(session[:original_user])
+      original_user= User.find(session[:original_user])
     end
+    roles = current_user.nil? ? nil : current_user.roles
     respond_to do |format|
-      format.json { render json: { user: current_user, original_user: @original_user, roles: current_user.application_roles } }
+      format.json { render json: { user: current_user, original_user: original_user, roles: roles } }
     end
   end
 

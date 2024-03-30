@@ -11,7 +11,7 @@ class Api::UsersController < ApiController
                         .group('users.id')
     end
 
-    render json: {users: users.map { |user| user.attributes.merge('current_level' => user.level)  }}
+    render json: {users: users }
   end
 
   def show

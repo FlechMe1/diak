@@ -84,12 +84,6 @@ class Api::MenusController < ApiController
         }
       result <<
         {
-          title: "Mon espace",
-          icon: "mdi-rss",
-          href: me_me_url(subdomain: :me),
-        }
-      result <<
-        {
           title: "Espace de votes",
           icon: "mdi-vote",
           href: root_url(subdomain: ''),
@@ -107,33 +101,10 @@ class Api::MenusController < ApiController
         {
           header: "NAVIGATION",
         },
-        {
-          title: "Mon espace",
-          icon: "mdi-rss",
-          href: me_me_url(subdomain: :me),
-        },
       ]
-    when 'me'
       result = [
         {
           header: "MON ESPACE",
-        },
-        {
-          title: "Feed",
-          icon: "mdi-newspaper",
-          to: me_feed_path,
-        },
-        {
-          title: "Mon profil",
-          icon: "mdi-account",
-          to: me_me_path,
-          new_tab: true,
-        },
-        {
-          title: "Annuaire",
-          icon: "mdi-card-account-details-outline",
-          to: me_annuaire_path,
-          new_tab: true,
         },
         {
           title: "Espace de votes",
@@ -168,11 +139,6 @@ class Api::MenusController < ApiController
         },
         {
           header: "NAVIGATION",
-        },
-        {
-          title: "Mon espace",
-          icon: "mdi-rss",
-          href: me_me_url(subdomain: :me),
         },
         {
           title: "Espace de votes",
@@ -214,11 +180,6 @@ class Api::MenusController < ApiController
           header: "NAVIGATION",
         },
         {
-          title: "Mon espace",
-          icon: "mdi-rss",
-          href: me_me_url(subdomain: :me),
-        },
-        {
           title: "Espace de votes",
           icon: "mdi-vote",
           href: root_url(subdomain: ''),
@@ -226,18 +187,6 @@ class Api::MenusController < ApiController
       ]
     else
       result[:error] = "Menu #{menu} not found"
-    end
-
-    Intranet.order(:subdomain).each do |intranet|
-      if current_user.associations_responsabilities.include?(intranet.structure)
-        # insert header INTRANET if not present
-        result << { header: "INTRANET" } unless result.any? { |h| h[:header] == "INTRANET" }
-        result << {
-          title: intranet.structure_name,
-          icon: "mdi-rss",
-          href: root_url(subdomain: intranet.subdomain),
-        }
-      end
     end
 
     if current_user.is_admin? || current_user.associations_responsabilities.any?

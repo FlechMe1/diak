@@ -12,16 +12,6 @@
 
 ActiveRecord::Schema.define(version: 2024_03_13_191743) do
 
-  create_table "accesses", charset: "utf8", force: :cascade do |t|
-    t.string "resource_type"
-    t.bigint "resource_id"
-    t.string "level"
-    t.boolean "can_access"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["resource_type", "resource_id"], name: "index_accesses_on_resource"
-  end
-
   create_table "active_storage_attachments", charset: "utf8", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -76,15 +66,6 @@ ActiveRecord::Schema.define(version: 2024_03_13_191743) do
     t.index ["post_id"], name: "index_attachments_on_post_id"
   end
 
-  create_table "attendees", charset: "latin1", force: :cascade do |t|
-    t.bigint "user_id"
-    t.bigint "meeting_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["meeting_id"], name: "index_attendees_on_meeting_id"
-    t.index ["user_id"], name: "index_attendees_on_user_id"
-  end
-
   create_table "backups", charset: "utf8mb4", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", precision: 6, null: false
@@ -109,85 +90,10 @@ ActiveRecord::Schema.define(version: 2024_03_13_191743) do
     t.index ["structure_id"], name: "index_campaigns_on_structure_id"
   end
 
-  create_table "careers", charset: "utf8", force: :cascade do |t|
-    t.string "level"
-    t.integer "referent_id"
-    t.date "start_at"
-    t.date "end_at"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.bigint "user_id"
-    t.integer "church_id"
-    t.integer "association_id"
-    t.string "function"
-    t.index ["referent_id"], name: "index_careers_on_referent_id"
-    t.index ["user_id"], name: "index_careers_on_user_id"
-  end
-
-  create_table "categories", id: :integer, charset: "utf8", force: :cascade do |t|
-    t.string "name"
-    t.string "color"
-    t.string "kind"
-    t.integer "structure_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["structure_id"], name: "index_categories_on_structure_id"
-  end
-
-  create_table "events", id: :integer, charset: "utf8", force: :cascade do |t|
-    t.string "title"
-    t.string "description"
-    t.datetime "start_at"
-    t.datetime "end_at"
-    t.string "category"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.integer "structure_id"
-    t.integer "category_id"
-    t.index ["category_id"], name: "index_events_on_category_id"
-    t.index ["structure_id"], name: "index_events_on_structure_id"
-  end
-
-  create_table "fees", charset: "latin1", force: :cascade do |t|
-    t.integer "user_id"
-    t.string "what"
-    t.date "paid_at"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.decimal "amount", precision: 10, scale: 2
-    t.index ["user_id"], name: "index_fees_on_user_id"
-  end
-
-  create_table "intranets", id: :integer, charset: "utf8", force: :cascade do |t|
-    t.string "subdomain"
-    t.integer "structure_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["structure_id"], name: "index_intranets_on_structure_id"
-  end
-
   create_table "jwt_denylist", charset: "utf8", force: :cascade do |t|
     t.string "jti", null: false
     t.datetime "exp", null: false
     t.index ["jti"], name: "index_jwt_denylist_on_jti"
-  end
-
-  create_table "marriages", charset: "utf8", force: :cascade do |t|
-    t.integer "husband_id"
-    t.integer "wife_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["husband_id"], name: "index_marriages_on_husband_id"
-    t.index ["wife_id"], name: "index_marriages_on_wife_id"
-  end
-
-  create_table "meetings", id: :integer, charset: "utf8", force: :cascade do |t|
-    t.string "name"
-    t.date "begin_at"
-    t.date "end_at"
-    t.text "description"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
   end
 
   create_table "memberships", charset: "utf8", force: :cascade do |t|
@@ -214,22 +120,6 @@ ActiveRecord::Schema.define(version: 2024_03_13_191743) do
     t.string "choices"
     t.integer "max_choice", default: 1
     t.index ["campaign_id"], name: "index_motions_on_campaign_id"
-  end
-
-  create_table "notifications", id: :integer, charset: "utf8", force: :cascade do |t|
-    t.string "title"
-    t.string "content"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
-  create_table "posts", id: :integer, charset: "utf8", force: :cascade do |t|
-    t.string "title"
-    t.text "content"
-    t.integer "structure_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["structure_id"], name: "index_posts_on_structure_id"
   end
 
   create_table "roles", id: :integer, charset: "utf8", force: :cascade do |t|
@@ -338,11 +228,6 @@ ActiveRecord::Schema.define(version: 2024_03_13_191743) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "attachments", "posts"
-  add_foreign_key "events", "categories"
-  add_foreign_key "events", "structures"
-  add_foreign_key "fees", "users"
-  add_foreign_key "intranets", "structures"
   add_foreign_key "memberships", "roles"
-  add_foreign_key "posts", "structures"
   add_foreign_key "voting_tables", "campaigns"
 end

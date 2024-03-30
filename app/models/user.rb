@@ -16,33 +16,11 @@ class User < ActiveRecord::Base
 
   has_one_attached :avatar
 
-  has_many :careers, class_name: "Career", foreign_key: :user_id
-
-  has_many :interns, class_name: "Career", foreign_key: :referent_id
-  has_many :gratitudes, ->(career) { where('level IS NOT NULL') }, class_name: "Career", foreign_key: :user_id
-  has_many :phases, ->(career) { where('church_id IS NOT NULL') }, class_name: "Career", foreign_key: :user_id
-  has_many :responsabilities, ->(career) { where('association_id IS NOT NULL') }, class_name: "Career", foreign_key: :user_id
-
-  has_many :fees, dependent: :destroy
-
-  accepts_nested_attributes_for :careers, reject_if: :all_blank, allow_destroy: true
-  accepts_nested_attributes_for :gratitudes, reject_if: :all_blank, allow_destroy: true
-  accepts_nested_attributes_for :phases, reject_if: :all_blank, allow_destroy: true
-  accepts_nested_attributes_for :responsabilities, reject_if: :all_blank, allow_destroy: true
-  accepts_nested_attributes_for :fees, reject_if: :all_blank, allow_destroy: true
-
   validates :firstname, :lastname, presence: true
 
   scope :enabled, -> { where.not(disabled: true) }
   scope :disabled, -> { where(disabled: true) }
 
-  has_one :wife_marriage, class_name: 'Marriage', foreign_key: :wife_id
-  has_one :husband, class_name: 'User', through: :wife_marriage
-  accepts_nested_attributes_for :wife_marriage, reject_if: :all_blank, allow_destroy: true
-
-  has_one :husband_marriage, class_name: 'Marriage', foreign_key: :husband_id
-  has_one :wife, class_name: 'User', through: :husband_marriage
-  accepts_nested_attributes_for :husband_marriage, reject_if: :all_blank, allow_destroy: true
 
   before_validation :clean_name_attributes
 
@@ -145,7 +123,7 @@ class User < ActiveRecord::Base
 
   def get_presidences
     role= Role.where(name: :president).first
-    Structure.select('*', 'type AS type').where(id: self.memberships.where(role_id: role.id).pluck(:structure_id))
+    Structure.select('*', 'type AS type').where(id: self.memberships.where(role_id: role.id).pluck(:structure_id)) if role
   end
 
   def church_presidences
@@ -252,41 +230,6 @@ class User < ActiveRecord::Base
     ]
   end
 
-  def self.get_levels
-    ['Probatoire', 'Pasteur stagiaire', 'Pasteur AEM', 'Pasteur APE', 'Ancien', 'Pasteur Agréé', 'Pasteur Partenaire', 'Autre', 'Femme de pasteur', 'Hors ADD', 'Invité', 'Ministère P1', 'Ministère P2']
-  end
-
-  def self.get_functions
-    ['Président', 'Vice président', 'Pasteur principal', 'Pasteur adjoint', 'Pasteur stagiaire', 'Pasteur probatoire', 'Prédicateur', 'Missionnaire']
-  end
-
-  def self.get_responsabilities
-    ['Président',
-     'Vice président',
-     'Secrétaire',
-     'Secrétaire adjoint',
-     'Trésorier',
-     'Trésorier adjoint',
-     'Chargé de mission',
-     'Directeur',
-     'Directeur adjoint',
-     'Membre du CA',
-     'Délégué',
-     'Salarié',
-     'Rédacteur en chef',
-     'Enseignant']
-  end
-
-  def level
-    g = gratitudes.order(start_at: :desc).first
-
-    if g
-      g.level
-    else
-      'Non renseigné'
-    end
-  end
-
   def can_vote
     true
   end
@@ -314,22 +257,6 @@ class User < ActiveRecord::Base
     return "https://www.gravatar.com/avatar/#{hash}"
   end
 
-  def wife_fullname
-    f = nil
-    if wife
-      f = wife.fullname
-    end
-    f
-  end
-
-  def husband_fullname
-    f = nil
-    if husband
-      f = husband.fullname
-    end
-    f
-  end
-
   def get_avatar_url size = [150, 150]
     "/avatars/#{self.id}.png"
   end
@@ -337,32 +264,6 @@ class User < ActiveRecord::Base
   def current_church
     phase = self.phases.order(start_at: :desc).first
     phase.present? ? phase.church : nil
-  end
-
-  def to_json(options = {})
-    JSON.pretty_generate({
-                           id:         self.friendly_id,
-                           fullname:   self.fullname,
-                           address:    self.address_1,
-                           zipcode:    self.zipcode,
-                           town:       self.town,
-                           email:      self.email,
-                           phone:      self.phone_1,
-                           avatar:     self.get_avatar_url([350, 350]),
-                           level:      self.level,
-                           passphrase: self.passphrase
-                         }, options)
-  end
-
-  def passphrase
-    year = Date.today.year - 1
-    fee  = self.fees.where(what: year).first
-
-    if fee
-      return self.friendly_id + ' ' + self.fullname + ' Cotisation ' + year.to_s + ' OK'
-    else
-      return self.friendly_id + ' ' + self.fullname + ' Cotisation ' + year.to_s + ' KO'
-    end
   end
 
   def self.from_omniauth(access_token)
